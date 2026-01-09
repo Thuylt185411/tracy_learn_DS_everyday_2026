@@ -1,0 +1,44 @@
+{
+    "monitoring_metadata": {
+      "execution_timestamp": "2025-01-05T16:55:00+07:00",
+      "reference_data": {
+        "id": "ASSET_NM_20241201",
+        "row_count": 100000
+      },
+      "current_data": {
+        "id": "ASSET_NM_20250101",
+        "row_count": 50000
+      }
+    },
+    "drift_metrics": {
+      "psi_score": 0.18,
+      "status": "PASS",
+      "drifted_features_share": 0.24,
+      "feature_drifts": [
+        {"name": "age", "psi": 0.08, "type": "numerical"},
+        {"name": "income", "psi": 0.32, "type": "numerical"},
+        {"name": "employment", "psi": 0.15, "type": "categorical"}
+      ]
+    },
+    "performance_metrics": {
+      "reference": {
+        "auc_roc": 0.8234,
+        "gini": 0.6468,
+        "ks": 0.4521,
+        "default_rate": 0.045
+      },
+      "current": {
+        "auc_roc": 0.7956,
+        "gini": 0.5912,
+        "ks": 0.3847,
+        "default_rate": 0.052
+      },
+      "changes_pct": {
+        "auc": -3.37,
+        "gini": -8.61,
+        "ks": -14.92,
+        "default_rate": 15.56
+      }
+    }
+  }
+  

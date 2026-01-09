@@ -1,0 +1,6 @@
+snapshot_date,data_reference_id,data_current_id,metric_name,metric_value,threshold,status
+2025-01-05,model_20241201,model_20241202,PSI_Score,0.18,0.25,PASS
+2025-01-05,model_20241201,model_20241202,Default_Rate,0.052,0.045,FAIL
+2025-01-05,model_20241201,model_20241202,AUC_ROC,0.7956,0.82,FAIL
+2025-01-05,model_20241201,model_20241202,Gini,0.5912,0.65,FAIL
+2025-01-05,model_20241201,model_20241202,KS_Statistic,0.3847,0.40,FAIL
