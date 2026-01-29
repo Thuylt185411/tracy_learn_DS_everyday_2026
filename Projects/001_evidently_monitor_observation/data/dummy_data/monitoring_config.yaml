@@ -1,0 +1,57 @@
+model:
+  name: dummy_data
+  description: "Dummy data"
+  baseline_id: "20260127" # training data
+
+base_path:
+  path: "D:/WORK_F88/Tracy/Projects/001_evidently_monitor_observation"
+columns:
+  target: LABEL 
+  prediction: PREDICTION
+  id_column:  CUSTOMER_CODE
+  timestamp_column: SCORING_DATE
+  datetime_column: [SCORING_DATE]
+  features_numeric: [
+    AGE_AT_CUTOFF,
+    INCOME_M,
+    DIGITAL_ACTIVITY_SCORE
+    ]
+  features_categorical: [REGION, ASSET_TYPE]
+  exclude: [CUSTOMER_CODE, LOAN_ID]
+
+scheduling:
+  data_quality: "daily@07:00"
+  drift_detection: "daily@08:00"
+  performance_eval: "monthly@2025-01-25T08:00"  # Sau khi có nhãn
+  timezone: "Asia/Ho_Chi_Minh"
+
+drift:
+  method_numeric: "psi"  # KS test (default for small data) or "wasserstein" (large)
+  method_categorical: "psi"  # Chi-square or "psi"
+  thresholds:
+    psi_feature: 0.25
+    ks_feature: 0.05
+    dataset_drift_share: 0.5  # >50% cột drift = dataset drift
+
+performance:
+  target_auc_min: 0.70
+  target_gini_min: 0.40
+  target_ks_min: 0.30
+  auc_drop_alert: 0.05  # Cảnh báo khi AUC giảm > 5%
+
+scorecard:
+  iv_threshold: 0.02  # Chỉ monitor features có IV > 0.02
+  enable_woe_monitoring: true
+  enable_iv_change_tracking: true
+  monotonicity_check: true
+
+baseline:
+  reference_features: "D:/WORK_F88/Tracy/Projects/001_evidently_monitor_observation/data/dummy_data/ref_all_features.parquet"
+  reference_labels: "D:/WORK_F88/Tracy/Projects/001_evidently_monitor_observation/data/dummy_data/ref_all_labels.parquet"
+  reference_score: "D:/WORK_F88/Tracy/Projects/001_evidently_monitor_observation/data/dummy_data/ref_all_score.parquet"
+
+output:
+  reports_dir: "reports/dummy_data"
+  db_connection: "postgresql://user:pwd@localhost/monitoring"
+  table_metrics: "score_model_metrics"
+  alert_email: [""]

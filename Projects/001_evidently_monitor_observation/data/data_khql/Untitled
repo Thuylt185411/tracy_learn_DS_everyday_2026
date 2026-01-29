@@ -1,0 +1,47 @@
+model:
+  name: churn_prediction
+  description: "Dự đoán khách hàng quay lại tháng sau"
+  baseline_id: "2024-12"  # Reference snapshot
+
+columns:
+  target: "is_churned"  # 0=không quay lại, 1=quay lại
+  prediction: "churn_score"  # Xác suất
+  features_numeric: [age, income, num_purchases, months_customer, last_purchase_days, avg_transaction]
+  features_categorical: [gender, product_type, region, subscription_status]
+  exclude: [customer_id, created_date]
+
+scheduling:
+  data_quality: "daily@07:00"
+  drift_detection: "daily@08:00"
+  performance_eval: "monthly@2025-01-25T08:00"  # Sau khi có nhãn
+  timezone: "Asia/Ho_Chi_Minh"
+
+drift:
+  method_numeric: "ks"  # KS test (default for small data) or "wasserstein" (large)
+  method_categorical: "chi2"  # Chi-square or "psi"
+  thresholds:
+    psi_feature: 0.25
+    ks_feature: 0.05
+    dataset_drift_share: 0.5  # >50% cột drift = dataset drift
+
+performance:
+  target_auc_min: 0.70
+  target_gini_min: 0.40
+  target_ks_min: 0.30
+  auc_drop_alert: 0.05  # Cảnh báo khi AUC giảm > 5%
+
+scorecard:
+  iv_threshold: 0.02  # Chỉ monitor features có IV > 0.02
+  enable_woe_monitoring: true
+  enable_iv_change_tracking: true
+  monotonicity_check: true
+
+baseline:
+  reference_dataset: "./data/baseline/churn_2024_12.parquet"
+  reference_labels: "./data/baseline/churn_2024_12_labels.parquet"
+
+output:
+  reports_dir: "./artifacts/churn_prediction"
+  db_connection: "postgresql://user:pwd@localhost/monitoring"
+  table_metrics: "score_model_metrics"
+  alert_email: ["analyst@company.com"]

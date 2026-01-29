@@ -1,3 +1,7 @@
 .venv/*
 __pycache__/*
 .pytest_cache/*
+.data/data_khql/*
+/data/data_bscore_v4/*
+/data/training_data/*
+/reports/f88_predict_next_purchase_v3/*

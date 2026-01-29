@@ -1,0 +1,79 @@
+model:
+  name: f88_predict_next_purchase_v3
+  description: "Dự đoán khách hàng quay lại tháng sau"
+  baseline_id: "20250625" # training data
+
+base_path:
+  path: "D:/WORK_F88/Tracy/Projects/001_evidently_monitor_observation"
+columns:
+  target: DISB  # 0=không quay lại, 1=quay lại
+  prediction: Y_PRED_PROBA
+  id_column:  CUSTOMER_CODE
+  timestamp_column: DATE_PARTITION
+  features_numeric: [AVG_TIME_BETWEEN_2_CONTRACTS,
+    AVG_TIME_BETWEEN_3_CONTRACTS,
+    AVG_TIME_BETWEEN_4_CONTRACTS,
+    CUSTOMER_AGE,
+    LAST_INACTIVE_TIME,
+    IS_ACTIVE_CUSTOMER,
+    AVG_LTV_1_CONTRACTS,
+    AVG_LTV_2_CONTRACTS,
+    AVG_LTV_3_CONTRACTS,
+    N_DPD_1D_3M,
+    N_DPD_1D_6M,
+    N_DPD_1D_12M,
+    N_DPD_30D_3M,
+    N_DPD_30D_6M,
+    N_DPD_30D_12M,
+    MAX_DPD_3M,
+    MAX_DPD_6M,
+    MAX_DPD_12M,
+    NUM_RETURN_CONTRACT_3M,
+    NUM_RETURN_CONTRACT_6M,
+    NUM_RETURN_CONTRACT_12M,
+    NUM_TOPUP_CONTRACT_3M,
+    NUM_TOPUP_CONTRACT_6M,
+    NUM_TOPUP_CONTRACT_12M,
+    NUM_CONTRACT_3M,
+    NUM_CONTRACT_6M,
+    NUM_CONTRACT_12M,
+    NUM_ACTIVE_CONTRACT
+    ]
+  features_categorical: [ASSET_TYPE, CUSTOMER_GENDER]
+  exclude: [CUSTOMER_CODE, DATE_PARTITION, DISBURSE_DATE_WID]
+
+scheduling:
+  data_quality: "daily@07:00"
+  drift_detection: "daily@08:00"
+  performance_eval: "monthly@2025-01-25T08:00"  # Sau khi có nhãn
+  timezone: "Asia/Ho_Chi_Minh"
+
+drift:
+  method_numeric: "psi"  # KS test (default for small data) or "wasserstein" (large)
+  method_categorical: "psi"  # Chi-square or "psi"
+  thresholds:
+    psi_feature: 0.25
+    ks_feature: 0.05
+    dataset_drift_share: 0.5  # >50% cột drift = dataset drift
+
+performance:
+  target_auc_min: 0.70
+  target_gini_min: 0.40
+  target_ks_min: 0.30
+  auc_drop_alert: 0.05  # Cảnh báo khi AUC giảm > 5%
+
+scorecard:
+  iv_threshold: 0.02  # Chỉ monitor features có IV > 0.02
+  enable_woe_monitoring: true
+  enable_iv_change_tracking: true
+  monotonicity_check: true
+
+baseline:
+  reference_dataset: "/data/training data/result_20260105_164657_20250625.parquet"
+  reference_labels: "/data/training data/predictions_20260105_164657_20250625.parquet"
+
+output:
+  reports_dir: "reports/f88_predict_next_purchase_v3"
+  db_connection: "postgresql://user:pwd@localhost/monitoring"
+  table_metrics: "score_model_metrics"
+  alert_email: [""]
